@@ -13,15 +13,15 @@ app.set('view engine','ejs')
 app.set('views',path.join(__dirname,'views'))
 
 app.get('/',(req,res)=>{
-    res.render('index.ejs')
-});
-
-app.get('/create',(req,res)=>{
     fs.readdir(dir,(err,files)=>{
         if(err){
             return res.status(500).send(err)
-        }
+        }res.render('index',{files})
     })
+});
+
+app.get('/create',(req,res)=>{
+    res.render('create')
 })
 app.post('/create',(req,res)=>{
     function getCurrentDate() {

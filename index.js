@@ -38,7 +38,7 @@ app.post('/create', (req, res) => {
     
     let data = req.body.content;
     while(fs.existsSync(filepath)){
-        filepath=path.join(dir,`${name}.txt (${counter})`)
+        filepath=path.join(dir,`${name}(${counter}).txt`)
         counter++;
     }
 
@@ -46,6 +46,51 @@ app.post('/create', (req, res) => {
         if (err) {
             return res.status(500).send(err)
         } res.redirect('/')
+    })
+})
+
+app.get('/edit/:filename',(req,res)=>{
+    const file=req.params.filename
+    const filepath=path.join(dir,file)
+    fs.readFile(filepath,'utf-8',(err,data)=>{
+        if(err){
+            return res.status(500).send(err)
+        }
+        res.render('edit',{file, data})
+    });
+});
+
+
+app.post('/update/:filename',(req,res)=>{
+    const file=req.params.filename
+    const filepath=path.join(dir,file)
+    const new_data=req.body.content
+    fs.writeFile(filepath,new_data,(err)=>{
+        if(err){
+            return res.status(500).send(err)
+        }
+        res.redirect('/')
+    })
+})
+
+app.get('/hisaab/:filename',(req,res)=>{
+    const file=req.params.filename
+    const filepath=path.join(dir,file)
+    fs.readFile(filepath,'utf-8',(err,data)=>{
+        if(err){
+            return res.status(500).send(err)
+
+        }res.render('data',{file,data})
+    })
+})
+
+app.get('/delete/:filename',(req,res)=>{
+    const file=req.params.filename
+    const filepath=path.join(dir,file)
+    fs.unlink(filepath,(err)=>{
+        if(err){
+            return res.status(500).send(err)
+        }res.redirect('/')
     })
 })
 

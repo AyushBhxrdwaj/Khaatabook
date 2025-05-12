@@ -4,6 +4,7 @@
     "@tailwindcss/cli": "^4.1.4",
     "ejs": "^3.1.10",
     "express": "^5.1.0",
+    "mongoose": "^8.14.2",
     "tailwindcss": "^4.1.4"
   },
   "name": "khaatabook",

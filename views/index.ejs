@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <link rel="stylesheet" href="/output.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
 </head>
 
 <body>
@@ -62,15 +63,31 @@
         
         
                 </div>
+               
             </div>
     <%});%>
         
     <%}else{%>
         <p class="text-lg font-semibold mx-5 mt-3">No hisaabs to show 😞 <a class="text-blue-600" href="/create">create one!!</a></p>
     <%}%>
+     <a href="/auth/logout" class="text-black outline outline-black font-semibold bg-red-500 absolute right-10 p-2 bottom-10">Logout</a>
 
 
     
 </body>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+<script>
+  const params = new URLSearchParams(window.location.search);
+  if (params.get("login") === "success") {
+    Toastify({
+      text: "Logged in successfully!",
+      duration: 3000,
+      gravity: "top",
+      position: "right",
+      backgroundColor: "#00b09b",
+      close: true
+    }).showToast();
+  }
+</script>
 
 </html>

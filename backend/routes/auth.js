@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 const User = require('../models/user');
 const router = express.Router();
 
+
 router.get('/signup', (req, res) => {
     res.render('new.ejs');
 });
@@ -18,7 +19,7 @@ router.post('/signup', async (req, res) => {
     await user.save();
 
     req.session.userID = user._id;
-    res.redirect('/');
+    res.redirect('/auth/login?created=true');
 });
 
 router.get('/login', (req, res) => {
@@ -35,7 +36,17 @@ router.post('/login', async (req, res) => {
     if (!match) return res.send("Wrong Password");
 
     req.session.userID = user._id;
-    res.redirect('/');
+    res.redirect('/?login=success');
 });
+
+router.get('/logout',(req,res)=>{
+    req.session.destroy(err=>{
+        if(err){
+            return res.send("Error logging out!!")
+        }
+        res.clearCookie('connect.sid');
+        res.redirect('/auth/login')
+    })
+})
 
 module.exports = router;

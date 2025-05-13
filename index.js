@@ -2,8 +2,38 @@ const express = require('express')
 const fs = require('fs')
 const path = require('path')
 const app = express()
-
 const dir = path.join(__dirname, 'files');
+const mongoose = require('mongoose')
+require('dotenv').config()
+const session = require('express-session')
+const MongoStore = require('connect-mongo');
+const authRoutes=require('./backend/routes/auth')
+
+
+
+app.use(session({
+    secret:process.env.Secret_key,
+    resave:false,
+    saveUninitialized:false,
+    store:MongoStore.create({mongoUrl:'mongodb://127.0.0.1:27017/khaatabook'}),
+    cookie:{maxAge:1000*60*60*24}
+
+}));
+
+function requireLogin(req,res,next){
+    if(!req.session.userID){
+        return res.redirect('auth/login')
+    }
+    next()
+}
+
+
+
+mongoose.connect('mongodb://127.0.0.1:27017/khaatabook').then(()=>{
+    console.log("Connected to DB")
+}).catch((err)=>{
+    console.log("Database err",err)
+});
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
@@ -12,7 +42,9 @@ app.use(express.static(path.join(__dirname, 'public')))
 app.set('view engine', 'ejs')
 app.set('views', path.join(__dirname, 'views'))
 
-app.get('/', (req, res) => {
+app.use('/auth',authRoutes);
+
+app.get('/',requireLogin, (req, res) => {
     fs.readdir(dir, (err, files) => {
         if (err) {
             return res.status(500).send(err)

@@ -32,17 +32,33 @@
 </body>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 <script>
-      const params = new URLSearchParams(window.location.search);
-  if (params.get("created") === "true") {
-    Toastify({
-      text: "Account created successfully. Please log in.",
-      duration: 3000,
-      gravity: "top",
-      position: "right",
-      style: {background: "linear-gradient(to right, #00b09b, #96c93d)"},
-      close: true
-    }).showToast();
-  }
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("created") === "true") {
+        Toastify({
+            text: "Account created successfully. Please log in.",
+            duration: 3000,
+            gravity: "top",
+            position: "right",
+            style: { background: "linear-gradient(to right, #00b09b, #96c93d)" },
+            close: true
+        }).showToast();
+    }
+    if (params.has("created")) {
+        window.history.replaceState({}, document.title, window.location.pathname);
+    }
+    if (params.get("logout") === "success") {
+        Toastify({
+            text: "Logged out successfully!",
+            duration: 3000,
+            gravity: "top",
+            position: "right",
+            backgroundColor: "#ff5f5f",
+            close: true
+        }).showToast();
+    }
+    if (params.has("logout")) {
+        window.history.replaceState({}, document.title, window.location.pathname);
+    }
 </script>
 
 

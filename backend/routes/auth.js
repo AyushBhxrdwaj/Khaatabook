@@ -45,7 +45,7 @@ router.get('/logout',(req,res)=>{
             return res.send("Error logging out!!")
         }
         res.clearCookie('connect.sid');
-        res.redirect('/auth/login')
+        res.redirect('/auth/login?logout=success')
     })
 })
 

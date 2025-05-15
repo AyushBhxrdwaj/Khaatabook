@@ -70,7 +70,7 @@
     <%}else{%>
         <p class="text-lg font-semibold mx-5 mt-3">No hisaabs to show 😞 <a class="text-blue-600" href="/create">create one!!</a></p>
     <%}%>
-     <a href="/auth/logout" class="text-black outline outline-black font-semibold bg-red-500 absolute right-10 p-2 bottom-10">Logout</a>
+     <a href="/auth/logout" class="text-white  font-semibold rounded-xl bg-blue-600 absolute right-10 p-2 bottom-10">Logout</a>
 
 
     
@@ -87,6 +87,9 @@
       backgroundColor: "#00b09b",
       close: true
     }).showToast();
+  }
+  if(params.has('login')){
+    window.history.replaceState({},document.title,window.location.pathname)
   }
 </script>
 

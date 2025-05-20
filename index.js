@@ -54,7 +54,13 @@ app.set('views', path.join(__dirname, 'views'))
 app.use('/auth',authRoutes);
 
 app.get('/',requireLogin, (req, res) => {
-    fs.readdir(dir, (err, files) => {
+    const userID = req.session.userID
+    const userDir = path.join(dir,userID.toString());
+    if(!fs.existsSync(userDir)){
+        fs.mkdirSync(userDir,{recursive:true});
+    }
+
+    fs.readdir(userDir, (err, files) => {
         if (err) {
             return res.status(500).send(err)
         } res.render('index', { files })
@@ -74,12 +80,19 @@ app.post('/create', (req, res) => {
     }
 
     const name = getCurrentDate()
-    let filepath = path.join(dir, `${name}.txt`)
-    let counter = 2;
+    const userDir = path.join(dir,req.session.userID.toString());
+    if(!fs.existsSync(userDir)){
+        fs.mkdirSync(userDir)
+    }
+
+
+
+    let filepath = path.join(userDir, `${name}.txt`)
+    let counter = 1;
     
     let data = req.body.content;
     while(fs.existsSync(filepath)){
-        filepath=path.join(dir,`${name}(${counter}).txt`)
+        filepath=path.join(userDir,`${name}(${counter}).txt`)
         counter++;
     }
 
@@ -92,7 +105,8 @@ app.post('/create', (req, res) => {
 
 app.get('/edit/:filename',(req,res)=>{
     const file=req.params.filename
-    const filepath=path.join(dir,file)
+    const userDir = path.join(dir, req.session.userID.toString());
+    const filepath=path.join(userDir,file)
     fs.readFile(filepath,'utf-8',(err,data)=>{
         if(err){
             return res.status(500).send(err)
@@ -104,7 +118,8 @@ app.get('/edit/:filename',(req,res)=>{
 
 app.post('/update/:filename',(req,res)=>{
     const file=req.params.filename
-    const filepath=path.join(dir,file)
+    const userDir = path.join(dir,req.session.userID.toString());
+    const filepath=path.join(userDir,file)
     const new_data=req.body.content
     fs.writeFile(filepath,new_data,(err)=>{
         if(err){
@@ -116,7 +131,8 @@ app.post('/update/:filename',(req,res)=>{
 
 app.get('/hisaab/:filename',(req,res)=>{
     const file=req.params.filename
-    const filepath=path.join(dir,file)
+    const userDir = path.join(dir,req.session.userID.toString());
+    const filepath=path.join(userDir,file)
     fs.readFile(filepath,'utf-8',(err,data)=>{
         if(err){
             return res.status(500).send(err)
@@ -127,7 +143,8 @@ app.get('/hisaab/:filename',(req,res)=>{
 
 app.get('/delete/:filename',(req,res)=>{
     const file=req.params.filename
-    const filepath=path.join(dir,file)
+    const userDir = path.join(dir,req.session.userID.toString());
+    const filepath=path.join(userDir,file)
     fs.unlink(filepath,(err)=>{
         if(err){
             return res.status(500).send(err)

@@ -22,10 +22,19 @@ app.use(session({
 
 function requireLogin(req,res,next){
     if(!req.session.userID){
-        return res.redirect('auth/login')
+        return res.redirect('auth/login?session=expired')
     }
     next()
 }
+
+app.use((req, res, next) => {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    next();
+});
+
+
 
 
 

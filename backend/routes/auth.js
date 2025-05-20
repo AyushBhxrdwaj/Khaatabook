@@ -5,6 +5,9 @@ const router = express.Router();
 
 
 router.get('/signup', (req, res) => {
+    if(req.session.userID){
+        return res.render('/')
+    }
     res.render('new.ejs');
 });
 
@@ -23,6 +26,9 @@ router.post('/signup', async (req, res) => {
 });
 
 router.get('/login', (req, res) => {
+    if(req.session.userID){
+        return res.redirect('/')
+    }
     res.render('Login.ejs');
 });
 

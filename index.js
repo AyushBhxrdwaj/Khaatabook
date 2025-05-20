@@ -55,15 +55,15 @@ app.use('/auth',authRoutes);
 
 app.get('/',requireLogin, (req, res) => {
     const userID = req.session.userID
+    const username = req.session.username;
     const userDir = path.join(dir,userID.toString());
     if(!fs.existsSync(userDir)){
         fs.mkdirSync(userDir,{recursive:true});
     }
-
     fs.readdir(userDir, (err, files) => {
         if (err) {
             return res.status(500).send(err)
-        } res.render('index', { files })
+        } res.render('index', { files,username })
     })
 });
 

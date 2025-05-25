@@ -68,6 +68,14 @@ app.get('/', requireLogin, (req, res) => {
     })
 });
 
+function encryptText(text, password) {
+    const key = crypto.scryptSync(password, 'salt', 24);
+    const iv = crypto.randomBytes(16);
+    const cipher = crypto.createCipheriv('aes-192-cbc', key, iv);
+    const encrypted = Buffer.concat([cipher.update(text, 'utf-8'), cipher.final()]);
+    return iv.toString('hex') + ':' + encrypted.toString('hex');
+}
+
 app.get('/create', (req, res) => {
     res.render('create')
 })
@@ -79,7 +87,6 @@ app.post('/create', (req, res) => {
         const year = String(today.getFullYear()).slice(-2);
         return `${day}-${month}-${year}`;
     }
-
     const name = getCurrentDate();
     const userDir = path.join(dir, req.session.userID.toString());
     if (!fs.existsSync(userDir)) {
@@ -98,16 +105,10 @@ app.post('/create', (req, res) => {
     const passcode = req.body.passcode;
 
 
-    function encrypt(text, password) {
-        const key = crypto.scryptSync(password, 'salt', 24);
-        const iv = crypto.randomBytes(16);
-        const cipher = crypto.createCipheriv('aes-192-cbc', key, iv);
-        const encrypted = Buffer.concat([cipher.update(text, 'utf-8'), cipher.final()]);
-        return iv.toString('hex') + ':' + encrypted.toString('hex');
-    }
+
 
     if (encrypt_file && passcode) {
-        data = '[ENCRYPTED]\n' + encrypt(data, passcode);
+        data = '[ENCRYPTED]\n' + encryptText(data, passcode);
     }
 
     fs.writeFile(filepath, data, (err) => {
@@ -126,6 +127,9 @@ app.get('/edit/:filename', (req, res) => {
         if (err) {
             return res.status(500).send(err)
         }
+        if (data.startsWith('[ENCRYPTED]')) {
+            return res.render('passwordedit', { file })
+        }
         res.render('edit', { file, data })
     });
 });
@@ -133,10 +137,16 @@ app.get('/edit/:filename', (req, res) => {
 
 app.post('/update/:filename', (req, res) => {
     const file = req.params.filename
+    const { content, encrypt, passcode } = req.body;
     const userDir = path.join(dir, req.session.userID.toString());
     const filepath = path.join(userDir, file)
-    const new_data = req.body.content
-    fs.writeFile(filepath, new_data, (err) => {
+
+    let datatowrite = content;
+
+    if (encrypt && passcode) {
+        datatowrite = "[ENCRYPTED]\n" + encryptText(content, passcode);
+    }
+    fs.writeFile(filepath, datatowrite, (err) => {
         if (err) {
             return res.status(500).send(err)
         }
@@ -206,6 +216,31 @@ app.post('/decrypt/:filename', requireLogin, (req, res) => {
 
 
 });
+
+app.post('/decrypt-edit/:filename', (req, res) => {
+    const file = req.params.filename;
+    const password = req.body.password;
+    const userDir = path.join(dir, req.session.userID.toString());
+    const filepath = path.join(userDir, file);
+
+    fs.readFile(filepath, 'utf-8', (err, data) => {
+        if (err) return res.status(500).send(err);
+
+        try {
+            const encryptedText = data.replace('[ENCRYPTED]\n', '');
+            const decrypted = decrypt(encryptedText, password);
+
+            res.render('edit', { file, data: decrypted });
+        } catch (err) {
+            res.send("Incorrect password or decryption failed.");
+        }
+    });
+});
+
+
+
+
+
 
 
 app.listen(3000, () => {

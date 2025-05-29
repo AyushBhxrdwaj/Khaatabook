@@ -39,11 +39,9 @@ app.use((req, res, next) => {
 
 
 
-mongoose.connect('mongodb://127.0.0.1:27017/khaatabook').then(() => {
-    console.log("Connected to DB")
-}).catch((err) => {
-    console.log("Database err", err)
+mongoose.connect(process.env.Mongo_URL, {
 });
+
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
